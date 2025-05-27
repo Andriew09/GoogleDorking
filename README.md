@@ -4,7 +4,7 @@
 Elle permet de rechercher, visualiser et analyser des "Google Dorks" via une interface conviviale.
 
 ## Structure du projet
-DorkScope/
+BlueHack-404BlueTeam-DorkScope/
 ├── core/ # Application principale
 ├── dorkscope_web/ # Réglages du projet Django
 ├── db.sqlite3 # Base de données SQLite
@@ -18,7 +18,7 @@ DorkScope/
 
 ```bash
 git clone git@github.com:Andriew09/BlueHack-404BlueTeam-DorkScope.git
-cd DorkScope
+cd BlueHack-404BlueTeam-DorkScope
 
 2. Créer un environnement virtuel Python
 
