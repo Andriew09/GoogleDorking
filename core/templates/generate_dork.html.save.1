@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 DorkScope - Générateur Google Dork</title>
+    <style>
+        body {
+            background: #0f172a;
+            font-family: 'Segoe UI', sans-serif;
+            color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            padding: 40px 20px 20px;
+            text-align: center;
+            background: linear-gradient(to right, #0ea5e9, #38bdf8);
+            color: #ffffff;
+            border-bottom: 5px solid #1e293b;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.8em;
+        }
+
+        header p {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #e0f2fe;
+        }
+
+        main {
+            padding: 30px 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        form {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: none;
+            border-radius: 8px;
+            background-color: #334155;
+            color: #f8fafc;
+            font-size: 1em;
+        }
+
+        button[type="submit"] {
+            background-color: #38bdf8;
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 25px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0ea5e9;
+        }
+
+        .results-section {
+            margin-top: 40px;
+            background: #1e293b;
+            border-left: 6px solid #38bdf8;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        h2, h3 {
+            color: #38bdf8;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #fcd34d;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .risk {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .risk.high {
+            color: #f87171;
+        }
+
+        .risk.medium {
+            color: #facc15;
+        }
+
+        .risk.low {
+            color: #4ade80;
+        }
+
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔍 DorkScope</h1>
+        <p>Explorez le Web avec finesse grâce à notre générateur intelligent de requêtes Google Dork</p>
+    </header>
+
+    <main>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">🎯 Générer les Dorks</button>
+        </form>
+
+        {% if dork %}
+            <div class="results-section">
+                <h2>🔎 Requête générée :</h2>
+                <p><code>{{ dork.query }}</code></p>
+
+                {% if results %}
+                    <h3>{{ results|length }} résultats trouvés :</h3>
+                    <ul>
+                        {% for link, risk in results %}
+                            <li>
+                                <a href="{{ link }}" target="_blank">{{ link }}</a>
+                                {% if risk %}
+                                    <span class="risk {% if "⛔" in risk %}high{% elif "⚠" in risk %}medium{% else %}low{% endif %}">[{{ risk }}]</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Aucun résultat trouvé.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        © 2025 - DorkScope | Un outil d’analyse OSINT simple et puissant.
+    </footer>
+</body>
+</html>

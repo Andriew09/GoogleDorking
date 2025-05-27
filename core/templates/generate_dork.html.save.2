@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DorkScope - Recherches Avancées Puissantes</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DorkXplorer - Recherches Avancées Puissantes</title>
   <style>
     body {
       background: #0f172a;
@@ -11,9 +11,9 @@
       color: #f1f5f9;
       margin: 0;
       padding: 0;
+      line-height: 1.6;
       font-size: 18px;
     }
-
     header {
       padding: 60px 20px 30px;
       text-align: center;
@@ -24,30 +24,29 @@
     header h1 {
       margin: 0;
       font-size: 3.2em;
+      font-weight: bold;
     }
     header p {
       margin-top: 15px;
       font-size: 1.6em;
       color: #e0f2fe;
     }
-
     main {
       padding: 40px 20px;
       max-width: 900px;
       margin: auto;
     }
-
     .intro {
       text-align: center;
+      font-size: 1.2em;
       background: #1e293b;
       padding: 20px;
       border-radius: 15px;
       margin: 20px auto;
       max-width: 700px;
-      color: #facc15;
       box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      color: #facc15;
     }
-
     form {
       background: #1e293b;
       padding: 25px;
@@ -60,6 +59,7 @@
       display: block;
       margin-top: 15px;
       font-weight: bold;
+      color: #f8fafc;
       font-size: 1.1em;
     }
     input[type="text"] {
@@ -88,58 +88,26 @@
     button[type="submit"]:hover {
       background-color: #0ea5e9;
     }
-
-    /* Side Panel */
-    .side-panel {
-      position: fixed;
-      top: 0;
-      right: -400px;
-      width: 400px;
-      height: 100%;
-      background: #1e293b;
-      color: #facc15;
-      overflow-y: auto;
-      box-shadow: -2px 0 15px rgba(0,0,0,0.5);
-      transition: right 0.4s ease;
-      padding: 30px 20px;
-      z-index: 999;
-    }
-    .side-panel.open {
-      right: 0;
-    }
-    .side-panel h2 {
-      font-size: 1.5em;
-      margin-top: 0;
-      text-align: center;
-      color: #38bdf8;
-    }
-    .toggle-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #1e293b;
-      color: white;
-      padding: 5px 10px;
-      font-size: 1.5em;
-      border: none;
-      border-radius: 15px;
-      cursor: pointer;
-      z-index: 1000;
-    }
-
     .result-box {
+      margin-top: 30px;
       background: #1e293b;
       border-left: 6px solid #38bdf8;
       padding: 20px;
       border-radius: 10px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
       color: #fcd34d;
-      margin-top: 20px;
-      font-size: 1.1em;
+      font-size: 1.2em;
       box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
     }
-
+    h2, h3 {
+      text-align: center;
+      color: #facc15;
+      margin-top: 30px;
+    }
     ul {
-      padding-left: 20px;
+      padding-left: 30px;
     }
     li {
       margin-bottom: 15px;
@@ -148,11 +116,11 @@
       color: #60a5fa;
       text-decoration: none;
       font-weight: bold;
+      font-size: 1.1em;
     }
     a:hover {
       text-decoration: underline;
     }
-
     .risk {
       margin-left: 10px;
       font-size: 0.9em;
@@ -172,7 +140,6 @@
       background-color: #16a34a;
       color: #fff;
     }
-
     footer {
       margin-top: 60px;
       text-align: center;
@@ -180,60 +147,9 @@
       color: #94a3b8;
       padding: 20px;
     }
-
-    @media (max-width: 768px) {
-      .side-panel {
-        width: 100%;
-      }
-    }
-
-    button {
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #0ea5e9 !important;
-      transform: scale(1.03);
-    }
-
   </style>
 </head>
 <body>
-  <button class="toggle-btn" onclick="toggleSidePanel()">Résultats</button>
-
-  <div class="side-panel" id="sidePanel">
-    {% if dork %}
-      <h2>Requête</h2>
-      <div class="result-box">
-        <p><code>{{ dork.query }}</code></p>
-      </div>
-    {% endif %}
-
-    {% if results %}
-      <h2>Résultats de la recherche</h2>
-      <div class="result-box">
-        <ul>
-          {% for r in results %}
-            <li>
-              <a href="{{ r.link }}" target="_blank">{{ r.title }}</a>
-              {% if r.risk %}
-                <span class="risk {% if 'élevé' in r.risk %}high{% elif 'exposé' in r.risk %}medium{% else %}low{% endif %}">
-                  {{ r.risk }}
-                </span>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-
-    {% if error %}
-      <div class="result-box" style="border-left-color: #dc2626; color: #dc2626;">
-         {{ error }}
-      </div>
-    {% endif %}
-  </div>
-
   <header>
     <h1>DorkScope</h1>
     <p>Explorez le web en profondeur grâce à des recherches intelligentes.</p>
@@ -242,7 +158,7 @@
   <main>
     <div class="intro">
       <strong>Comment ça marche ?</strong><br>
-      Remplissez simplement le formulaire avec vos critères (un ou plusieurs champs). Cliquez sur Générer ma recherche et consultez vos résultats via un clic sur le bouton Résultats dans le coin supérieur droit.
+      Remplissez simplement le formulaire avec vos critères (un ou plusieurs champs) pour générer automatiquement une requête de recherche avancée. Utilisez cette requête sur Google pour découvrir des résultats ciblés et inédits. 
     </div>
 
     <form method="POST">
@@ -250,17 +166,41 @@
       {{ form.as_p }}
       <button type="submit">Générer ma recherche</button>
     </form>
+
+    {% if error %}
+      <div class="result-box" style="border-left-color: #dc2626; color: #dc2626;">
+        ⚠️ {{ error }}
+      </div>
+    {% endif %}
+
+
+    {% if dork %}
+      <div class="result-box">
+        <h2>Requête générée :</h2>
+        <p><code>{{ dork.query }}</code></p>
+
+        {% if results %}
+  	<h2>Résultats</h2>
+  <div class="result-box">
+    <ul>
+      {% for r in results %}
+        <li>
+          <a href="{{ r.link }}" target="_blank">{{ r.title }}</a>
+          {% if r.risk %}
+            <span class="risk {% if 'élevé' in r.risk %}high{% elif 'exposé' in r.risk %}medium{% else %}low{% endif %}">
+              {{ r.risk }}
+            </span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
   </main>
 
   <footer>
     © 2025 – DorkScope | Le web a des secrets, découvrez-les facilement.
-  </footer>
-
-  <script>
-    function toggleSidePanel() {
-      const panel = document.getElementById('sidePanel');
-      panel.classList.toggle('open');
-    }
-  </script>
+		  </footer>
 </body>
 </html>

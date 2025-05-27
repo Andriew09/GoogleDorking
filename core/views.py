@@ -15,30 +15,83 @@ def detect_risk(link):
 
     risk_level = ""
     if any(ft in link for ft in filetypes):
-        risk_level = "⚠️ Fichier exposé"
+        risk_level = "Fichier exposé"
     if any(rk in link.lower() for rk in risk_keywords):
-        risk_level = "⛔ Risque élevé"
+        risk_level = "Risque élevé"
     return risk_level
 
 
 def get_google_results(query):
-    time.sleep(random.uniform(1.5, 3))  # Anti-bot
-
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
     url = f"https://www.google.com/search?q={query}"
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    response = requests.get(url, headers=headers)
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
 
-    soup = BeautifulSoup(response.text, 'html.parser')
-    links = []
+        # Vérifie si Google a bloqué la requête
+        if "Our systems have detected unusual traffic" in response.text or "detected unusual traffic" in response.text:
+            raise Exception("⚠️ Requête bloquée par Google (Captcha ou anti-bot détecté). Veuillez réessayer plus tard.")
 
-    for g in soup.find_all('div', class_='tF2Cxc'):
-        link_tag = g.find('a')
-        if link_tag and link_tag['href']:
-            href = link_tag['href']
-            risk = detect_risk(href)
-            links.append((href, risk))
+        # Analyse du contenu HTML si tout va bien
+        soup = BeautifulSoup(response.text, "html.parser")
+        results = []
 
-    return links
+        for result in soup.select(".tF2Cxc"):
+            title_tag = result.select_one("h3")
+            link_tag = result.select_one("a")
+
+            if title_tag and link_tag:
+                results.append({
+                    "title": title_tag.text,
+                    "link": link_tag["href"]
+                })
+
+        return results
+
+    except requests.exceptions.RequestException as req_err:
+        raise Exception(f"🌐 Erreur réseau : {req_err}")
+    except Exception as err:
+        raise Exception(str(err))
+        
+        
+        
+def get_startpage_results(query):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    url = f"https://www.startpage.com/sp/search?query={query}"
+
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        results = []
+
+        for result in soup.select("a.result-link"):
+            title = result.get_text()
+            link = result.get("href")
+            if title and link:
+                risk = detect_risk(link)
+                results.append({
+                    "title": title,
+                    "link": link,
+                    "risk": risk
+                })
+
+        return results
+
+    except requests.exceptions.RequestException as req_err:
+        raise Exception(f" Erreur réseau : {req_err}")
+    except Exception as err:
+        raise Exception(f" Erreur : {err}")
+
+
 
 
 def generate_dork(request):
@@ -84,12 +137,12 @@ def generate_dork(request):
 
                 # Recherche Google
                 try:
-                    results = get_google_results(query)
-                    # Stockage brut en texte dans le champ results si besoin
+                    results = get_startpage_results(query)
+
                     dork.results = "\n".join([f"{link} [{risk}]" for link, risk in results])
                     dork.save()
                 except Exception as e:
-                    results = []
+                    print(f"Erreur lors de la récupération des résultats : {e}")
 
     else:
         form = DorkForm()
@@ -101,25 +154,24 @@ def generate_dork(request):
     })
 
 
-def export_dorks_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="dorks.csv"'
 
-    writer = csv.writer(response)
-    writer.writerow(['Keyword', 'Domain', 'Query', 'Results'])
+def generate_dork_view(request):
+    results = []
+    error = None
 
-    for dork in Dork.objects.all():
-        writer.writerow([dork.keyword, dork.domain, dork.query, dork.results])
+    if request.method == "POST":
+        form = DorkForm(request.POST)
+        if form.is_valid():
+            query = form.cleaned_data["query"]
+            try:
+                results = get_google_results(query)
+            except Exception as e:
+                error = str(e)
+    else:
+        form = DorkForm()
 
-    return response
-    
-
-def export_dorks_json(request):
-    response = HttpResponse(content_type='application/json')
-    response['Content-Disposition'] = 'attachment; filename="dorks.json"'
-
-    dorks = list(Dork.objects.values('keyword', 'domain', 'query', 'results'))
-    response.write(json.dumps(dorks, indent=4))
-
-    return response
-    
+    return render(request, "generate_dork.html", {
+        "form": form,
+        "results": results,
+        "error": error
+    })
