@@ -7,12 +7,7 @@ class DorkForm(forms.Form):
         label="Mot-clé",
         widget=forms.TextInput(attrs={'placeholder': 'Entrez le mot-clé'})
     )
-    domain = forms.CharField(
-        max_length=200,
-        required=False,
-        label="Site cible (facultatif)",
-        widget=forms.TextInput(attrs={'placeholder': 'ex: example.com'})
-    )
+   
     filetype = forms.CharField(
         max_length=50,
         required=False,
